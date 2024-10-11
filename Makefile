@@ -1,17 +1,17 @@
 .PHONY: install install-dev install-pre-commit test unit style check docs docs-serve
 
 install:
-	pip install -e .
+	pip3 install -e .
 
 install-dev-rs-release:
-	cd sqlglotrs/ && python -m maturin develop -r
+	cd sqlglotrs/ && python3 -m maturin develop -r
 
 install-dev-rs:
 	@unset CONDA_PREFIX && \
-	cd sqlglotrs/ && python -m maturin develop
+	cd sqlglotrs/ && python3 -m maturin develop
 
 install-dev-core:
-	pip install -e ".[dev]"
+	pip3 install -e ".[dev]"
 
 install-dev: install-dev-core install-dev-rs
 
@@ -19,16 +19,16 @@ install-pre-commit:
 	pre-commit install
 
 test:
-	SQLGLOTRS_TOKENIZER=0 python -m unittest
+	SQLGLOTRS_TOKENIZER=0 python3 -m unittest
 
 test-rs:
-	RUST_BACKTRACE=1 python -m unittest
+	RUST_BACKTRACE=1 python3 -m unittest
 
 unit:
-	SKIP_INTEGRATION=1 SQLGLOTRS_TOKENIZER=0 python -m unittest
+	SKIP_INTEGRATION=1 SQLGLOTRS_TOKENIZER=0 python3 -m unittest
 
 unit-rs:
-	SKIP_INTEGRATION=1 RUST_BACKTRACE=1 python -m unittest
+	SKIP_INTEGRATION=1 RUST_BACKTRACE=1 python3 -m unittest
 
 style:
 	pre-commit run --all-files
@@ -36,7 +36,7 @@ style:
 check: style test test-rs
 
 docs:
-	python pdoc/cli.py -o docs
+	python3 pdoc/cli.py -o docs
 
 docs-serve:
-	python pdoc/cli.py --port 8002
+	python3 pdoc/cli.py --port 8002

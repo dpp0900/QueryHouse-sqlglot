@@ -283,7 +283,7 @@ class Oracle(Dialect):
             exp.DataType.Type.VARCHAR: "VARCHAR2",
             exp.DataType.Type.NVARCHAR: "NVARCHAR2",
             exp.DataType.Type.NCHAR: "NCHAR",
-            exp.DataType.Type.TEXT: "CLOB",
+            exp.DataType.Type.TEXT: "VARCHAR2(1024)",
             exp.DataType.Type.TIMETZ: "TIME",
             exp.DataType.Type.TIMESTAMPTZ: "TIMESTAMP",
             exp.DataType.Type.BINARY: "BLOB",
@@ -319,6 +319,7 @@ class Oracle(Dialect):
             exp.Trim: _trim_sql,
             exp.UnixToTime: lambda self,
             e: f"TO_DATE('1970-01-01', 'YYYY-MM-DD') + ({self.sql(e, 'this')} / 86400)",
+            exp.JSONExtract: lambda self, e: self.func("JSON_VALUE", e.this, e.expression),
         }
 
         PROPERTIES_LOCATION = {

@@ -171,6 +171,7 @@ def transpile(
         The list of transpiled SQL statements.
     """
     write = (read if write is None else write) if identity else write
+    print("[__init__.py] modify test")
     write = Dialect.get_or_raise(write)
     return [
         write.generate(expression, copy=False, **opts) if expression else ""

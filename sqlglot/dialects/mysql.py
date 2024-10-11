@@ -775,6 +775,7 @@ class MySQL(Dialect):
             **generator.Generator.TYPE_MAPPING,
             **UNSIGNED_TYPE_MAPPING,
             **TIMESTAMP_TYPE_MAPPING,
+            exp.DataType.Type.TEXT: "VARCHAR(1024)",
         }
 
         TYPE_MAPPING.pop(exp.DataType.Type.MEDIUMTEXT)
