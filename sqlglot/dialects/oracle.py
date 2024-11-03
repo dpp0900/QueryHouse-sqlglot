@@ -319,7 +319,7 @@ class Oracle(Dialect):
             exp.Trim: _trim_sql,
             exp.UnixToTime: lambda self,
             e: f"TO_DATE('1970-01-01', 'YYYY-MM-DD') + ({self.sql(e, 'this')} / 86400)",
-            exp.JSONExtract: lambda self, e: self.func("JSON_VALUE", e.this, e.expression),
+            exp.JSONExtract: lambda self, e: self.func("JSON_QUERY", e.this, e.expression),
         }
 
         PROPERTIES_LOCATION = {
