@@ -1,5 +1,5 @@
 import sys
-from sqlglot import transpile, ErrorLevel
+from sqlglot import transpile, ErrorLevel, exp, parse_one
 from sqlglot.errors import UnsupportedError
 
 # 사용자에게 여러 줄의 쿼리 입력 받기
@@ -19,6 +19,7 @@ try:
         mysql_query = transpile(query, write='mysql', unsupported_level=ErrorLevel.RAISE)
         postgresql_query = transpile(query, write='postgres', unsupported_level=ErrorLevel.RAISE)
         oracle_query = transpile(query, write='oracle', unsupported_level=ErrorLevel.RAISE)
+
         
         for i, q in enumerate([sqlite_query, mysql_query, postgresql_query, oracle_query]):
             result[i].append(q[0])
@@ -43,4 +44,3 @@ for query in result[2]:
 print("\nOracle:")
 for query in result[3]:
     print(query + ';')
-

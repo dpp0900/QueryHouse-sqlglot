@@ -41,6 +41,14 @@ def _trim_sql(self: Oracle.Generator, expression: exp.Trim) -> str:
 
     return trim_sql(self, expression)
 
+def removeRecursiveFromCTE(self: Oracle.Genreator, expression: exp.With) -> str:
+    if expression.args.get("recursive"):
+        variables = []
+        for alias in expression.find_all(exp.Alias):
+            variables.append(str(alias.args.get("alias")))
+        cte_alias = (expression.args.get("expressions")[0].args.get("alias"))
+        return f"WITH {cte_alias} ( {', '.join(variables)} ) AS ({expression.args.get('expressions')[0].args.get('this')})"
+    return self.with_sql(expression)
 
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
@@ -320,6 +328,8 @@ class Oracle(Dialect):
             exp.UnixToTime: lambda self,
             e: f"TO_DATE('1970-01-01', 'YYYY-MM-DD') + ({self.sql(e, 'this')} / 86400)",
             exp.JSONExtract: lambda self, e: self.func("JSON_QUERY", e.this, e.expression),
+            #recursive CTE
+            exp.With: removeRecursiveFromCTE,
         }
 
         PROPERTIES_LOCATION = {
