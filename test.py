@@ -1,6 +1,11 @@
 import sys
 from sqlglot import transpile, ErrorLevel, exp, parse_one
 from sqlglot.errors import UnsupportedError
+# q = "CREATE TABLE tbl_name (var1 INT, var2 VARCHAR(255));"
+# print(repr(parse_one(q)))
+
+# q = "CREATE VIRTUAL TABLE tbl_name USING fts5(column_def_commalist);"
+# print(repr(parse_one(q)))
 
 # 사용자에게 여러 줄의 쿼리 입력 받기
 print("변환할 SQL 쿼리를 입력하세요 (입력이 끝나면 Ctrl+D 또는 Ctrl+Z를 누르세요):")

@@ -1561,6 +1561,7 @@ class Parser(metaclass=_Parser):
     def _advance(self, times: int = 1) -> None:
         self._index += times
         self._curr = seq_get(self._tokens, self._index)
+        print(self._curr)
         self._next = seq_get(self._tokens, self._index + 1)
 
         if self._index > 0:
@@ -1777,6 +1778,7 @@ class Parser(metaclass=_Parser):
             self._advance()
 
         properties = None
+        print("parse_create")
         create_token = self._match_set(self.CREATABLES) and self._prev
 
         if not create_token:
@@ -1893,8 +1895,10 @@ class Parser(metaclass=_Parser):
                 clone = self.expression(
                     exp.Clone, this=self._parse_table(schema=True), shallow=shallow, copy=copy
                 )
-
+        print("parse_as_command_if, ", self._curr)
         if self._curr and not self._match_set((TokenType.R_PAREN, TokenType.COMMA), advance=False):
+            print("parse_as_command")
+
             return self._parse_as_command(start)
 
         create_kind_text = create_token.text.upper()
@@ -3716,7 +3720,6 @@ class Parser(metaclass=_Parser):
             this = "VERSION"
         else:
             return None
-
         if self._match_set((TokenType.FROM, TokenType.BETWEEN)):
             kind = self._prev.text.upper()
             start = self._parse_bitwise()
@@ -5225,7 +5228,6 @@ class Parser(metaclass=_Parser):
                 return None
         elif token_type not in self.FUNC_TOKENS:
             return None
-
         self._advance(2)
 
         parser = self.FUNCTION_PARSERS.get(upper)
@@ -7010,6 +7012,7 @@ class Parser(metaclass=_Parser):
 
     def _parse_as_command(self, start: Token) -> exp.Command:
         while self._curr:
+            print("AS COMMAND", self._curr.text)
             self._advance()
         text = self._find_sql(start, self._prev)
         size = len(start.text)
@@ -7140,6 +7143,7 @@ class Parser(metaclass=_Parser):
 
         if self._curr.token_type == token_type:
             if advance:
+                print("with paren?")
                 self._advance()
             self._add_comments(expression)
             return True
@@ -7152,6 +7156,7 @@ class Parser(metaclass=_Parser):
 
         if self._curr.token_type in types:
             if advance:
+                print("EACH")
                 self._advance()
             return True
 

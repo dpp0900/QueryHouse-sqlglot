@@ -50,6 +50,11 @@ def removeRecursiveFromCTE(self: Oracle.Genreator, expression: exp.With) -> str:
         return f"WITH {cte_alias} ( {', '.join(variables)} ) AS ({expression.args.get('expressions')[0].args.get('this')})"
     return self.with_sql(expression)
 
+def removeONDELETENOACTIONFromForeignKey(self: Oracle.Generator, expression: exp.ForeignKey) -> str:
+    expression.args.get("reference").args.get("options").pop(0)
+    return self.foreignkey_sql(expression)
+
+
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
     LOCKING_READS_SUPPORTED = True
@@ -330,6 +335,7 @@ class Oracle(Dialect):
             exp.JSONExtract: lambda self, e: self.func("JSON_QUERY", e.this, e.expression),
             #recursive CTE
             exp.With: removeRecursiveFromCTE,
+            exp.ForeignKey: removeONDELETENOACTIONFromForeignKey,
         }
 
         PROPERTIES_LOCATION = {
