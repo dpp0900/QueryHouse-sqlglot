@@ -993,8 +993,14 @@ class Generator(metaclass=_Generator):
 
         expr = self.sql(expression, "expression")
         expr = f"({expr})" if expr else "IDENTITY"
+        
+        store_opts = ""
+        if expression.args.get("virtual"):
+            store_opts = "VIRTUAL"
+        elif expression.args.get("stored"):
+            store_opts = "STORED"
 
-        return f"GENERATED{this} AS {expr}{sequence_opts}"
+        return f"GENERATED{this} AS {expr}{sequence_opts} {store_opts}"
 
     def generatedasrowcolumnconstraint_sql(
         self, expression: exp.GeneratedAsRowColumnConstraint

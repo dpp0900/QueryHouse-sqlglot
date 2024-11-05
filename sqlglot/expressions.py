@@ -1837,6 +1837,8 @@ class GeneratedAsIdentityColumnConstraint(ColumnConstraintKind):
         "minvalue": False,
         "maxvalue": False,
         "cycle": False,
+        "stored": False,
+        "virtual": False,
     }
 
 

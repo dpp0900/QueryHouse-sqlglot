@@ -5472,6 +5472,7 @@ class Parser(metaclass=_Parser):
         | exp.ComputedColumnConstraint
         | exp.GeneratedAsRowColumnConstraint
     ):
+        print("Generated as identity")
         if self._match_text_seq("BY", "DEFAULT"):
             on_null = self._match_pair(TokenType.ON, TokenType.NULL)
             this = self.expression(
@@ -5515,7 +5516,8 @@ class Parser(metaclass=_Parser):
                 this.set("increment", seq_get(args, 1))
 
             self._match_r_paren()
-
+            if self._match(TokenType.VIRTUAL):
+                this.set("virtual", True)
         return this
 
     def _parse_inline(self) -> exp.InlineLengthColumnConstraint:
