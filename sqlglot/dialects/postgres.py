@@ -235,6 +235,19 @@ def _unix_to_time_sql(self: Postgres.Generator, expression: exp.UnixToTime) -> s
         exp.Div(this=timestamp, expression=exp.func("POW", 10, scale)),
         self.format_time(expression),
     )
+    
+def addStoredToGENERATED(expression: exp.Expression) -> exp.Expression:
+    if not isinstance(expression, exp.ColumnDef):
+        return expression
+    
+    generated = expression.find(exp.GeneratedAsIdentityColumnConstraint)
+    
+    if generated:
+        generated.args["stored"] = True
+        if generated.args.get("virtual"):
+            generated.args["virtual"] = False
+        
+    return expression
 
 
 class Postgres(Dialect):
@@ -488,7 +501,7 @@ class Postgres(Dialect):
             exp.ArrayFilter: filter_array_using_unnest,
             exp.ArraySize: lambda self, e: self.func("ARRAY_LENGTH", e.this, e.expression or "1"),
             exp.BitwiseXor: lambda self, e: self.binary(e, "#"),
-            exp.ColumnDef: transforms.preprocess([_auto_increment_to_serial, _serial_to_generated]),
+            exp.ColumnDef: transforms.preprocess([_auto_increment_to_serial, _serial_to_generated, addStoredToGENERATED]),
             exp.CurrentDate: no_paren_current_date_sql,
             exp.CurrentTimestamp: lambda *_: "CURRENT_TIMESTAMP",
             exp.CurrentUser: lambda *_: "CURRENT_USER",

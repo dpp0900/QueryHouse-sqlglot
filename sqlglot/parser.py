@@ -5518,6 +5518,8 @@ class Parser(metaclass=_Parser):
             self._match_r_paren()
             if self._match(TokenType.VIRTUAL):
                 this.set("virtual", True)
+            if self._match(TokenType.STORED):
+                this.set("stored", True)
         return this
 
     def _parse_inline(self) -> exp.InlineLengthColumnConstraint:

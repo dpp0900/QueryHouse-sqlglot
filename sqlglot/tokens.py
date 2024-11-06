@@ -399,6 +399,7 @@ class TokenType(AutoName):
     OPTION = auto()
     
     VIRTUAL = auto()
+    STORED = auto()
 
 
 _ALL_TOKEN_TYPES = list(TokenType)
@@ -922,6 +923,7 @@ class Tokenizer(metaclass=_Tokenizer):
         "FOR TIMESTAMP": TokenType.TIMESTAMP_SNAPSHOT,
         
         "VIRTUAL": TokenType.VIRTUAL,
+        "STORED": TokenType.STORED,
     }
 
     WHITE_SPACE: t.Dict[t.Optional[str], TokenType] = {
