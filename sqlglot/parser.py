@@ -1774,10 +1774,6 @@ class Parser(metaclass=_Parser):
         else:
             clustered = None
             
-        if self._match(TokenType.VIRTUAL):
-            print("match virtual")
-            virtual = True
-            
         print("check")
         if self._match_pair(TokenType.TABLE, TokenType.FUNCTION, advance=False):
             print("check")
@@ -1930,7 +1926,6 @@ class Parser(metaclass=_Parser):
             clone=clone,
             concurrently=concurrently,
             clustered=clustered,
-            virtual=virtual,
         )
 
     def _parse_sequence_properties(self) -> t.Optional[exp.SequenceProperties]:
@@ -3063,6 +3058,8 @@ class Parser(metaclass=_Parser):
         return self.expression(
             exp.With, comments=comments, expressions=expressions, recursive=recursive
         )
+        
+    # def _parse_virtual(self) -> exp.Virtual:
 
     def _parse_cte(self) -> exp.CTE:
         alias = self._parse_table_alias(self.ID_VAR_TOKENS)
