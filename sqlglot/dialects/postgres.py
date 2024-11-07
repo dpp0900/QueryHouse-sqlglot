@@ -250,6 +250,8 @@ def addStoredToGENERATED(expression: exp.Expression) -> exp.Expression:
     return expression
 
 
+
+
 class Postgres(Dialect):
     INDEX_OFFSET = 1
     TYPED_DIVISION = True

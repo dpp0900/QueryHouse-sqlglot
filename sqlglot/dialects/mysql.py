@@ -153,7 +153,6 @@ def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str
     where = expression.args.get("expression")
     new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
     return self.sql(new_case)
-    
 
 class MySQL(Dialect):
     # https://dev.mysql.com/doc/refman/8.0/en/identifiers.html

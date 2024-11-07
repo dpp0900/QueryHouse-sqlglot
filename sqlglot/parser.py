@@ -687,14 +687,14 @@ class Parser(metaclass=_Parser):
     JOIN_HINTS: t.Set[str] = set()
 
     LAMBDAS = {
-        TokenType.ARROW: lambda self, expressions: self.expression(
-            exp.Lambda,
-            this=self._replace_lambda(
-                self._parse_assignment(),
-                expressions,
-            ),
-            expressions=expressions,
-        ),
+        # TokenType.ARROW: lambda self, expressions: self.expression(
+        #     exp.Lambda,
+        #     this=self._replace_lambda(
+        #         self._parse_assignment(),
+        #         expressions,
+        #     ),
+        #     expressions=expressions,
+        # ),
         TokenType.FARROW: lambda self, expressions: self.expression(
             exp.Kwarg,
             this=exp.var(expressions[0].name),
@@ -1774,6 +1774,9 @@ class Parser(metaclass=_Parser):
         else:
             clustered = None
             
+        if self._match(TokenType.VIRTUAL):
+            pass
+            
         print("check")
         if self._match_pair(TokenType.TABLE, TokenType.FUNCTION, advance=False):
             print("check")
@@ -1782,7 +1785,6 @@ class Parser(metaclass=_Parser):
         properties = None
         print("parse_create")
         create_token = self._match_set(self.CREATABLES) and self._prev
-
         if not create_token:
             # exp.Properties.Location.POST_CREATE
             properties = self._parse_properties()
@@ -1790,6 +1792,7 @@ class Parser(metaclass=_Parser):
 
             if not properties or not create_token:
                 return self._parse_as_command(start)
+            
 
         concurrently = self._match_text_seq("CONCURRENTLY")
         exists = self._parse_exists(not_=True)
@@ -3058,8 +3061,6 @@ class Parser(metaclass=_Parser):
         return self.expression(
             exp.With, comments=comments, expressions=expressions, recursive=recursive
         )
-        
-    # def _parse_virtual(self) -> exp.Virtual:
 
     def _parse_cte(self) -> exp.CTE:
         alias = self._parse_table_alias(self.ID_VAR_TOKENS)
