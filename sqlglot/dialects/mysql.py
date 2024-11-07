@@ -146,6 +146,13 @@ def _remove_ts_or_ds_to_date(
 def ExtractToValueAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) -> str:
     expression.args["expression"] = str(expression.args.get("expression")) + " RETURNING CHAR"
     return self.func("JSON_VALUE", expression.this,expression.expression)
+
+def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str:
+    func = expression.find(exp.Func).sql_name()
+    arg = expression.find(exp.Func).args.get("this")
+    where = expression.args.get("expression")
+    new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
+    return self.sql(new_case)
     
 
 class MySQL(Dialect):
@@ -759,6 +766,7 @@ class MySQL(Dialect):
             exp.Week: _remove_ts_or_ds_to_date(),
             exp.WeekOfYear: _remove_ts_or_ds_to_date(rename_func("WEEKOFYEAR")),
             exp.Year: _remove_ts_or_ds_to_date(),
+            exp.Filter: UseCaseInsteadOfFilter,
         }
 
         UNSIGNED_TYPE_MAPPING = {

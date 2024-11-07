@@ -58,6 +58,13 @@ def ExtractToQueryAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) 
     expression.args["expression"] = str(expression.args.get("expression")) + " RETURNING VARCHAR2(4000)"
     return self.func("JSON_QUERY", expression.this,expression.expression)
 
+def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str:
+    func = expression.find(exp.Func).sql_name()
+    arg = expression.find(exp.Func).args.get("this")
+    where = expression.args.get("expression")
+    new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
+    return self.sql(new_case)
+
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
     LOCKING_READS_SUPPORTED = True
@@ -339,6 +346,7 @@ class Oracle(Dialect):
             #recursive CTE
             exp.With: removeRecursiveFromCTE,
             exp.ForeignKey: removeONDELETENOACTIONFromForeignKey,
+            exp.Filter: UseCaseInsteadOfFilter,
         }
 
         PROPERTIES_LOCATION = {
