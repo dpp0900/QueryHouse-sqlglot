@@ -313,6 +313,8 @@ class Oracle(Dialect):
             exp.DataType.Type.BINARY: "BLOB",
             exp.DataType.Type.VARBINARY: "BLOB",
             exp.DataType.Type.ROWVERSION: "BLOB",
+            exp.DataType.Type.FLOAT: "BINARY_FLOAT",
+            exp.DataType.Type.DOUBLE: "BINARY_DOUBLE",
         }
 
         TRANSFORMS = {
