@@ -299,7 +299,7 @@ class Oracle(Dialect):
             **generator.Generator.TYPE_MAPPING,
             exp.DataType.Type.TINYINT: "NUMBER",
             exp.DataType.Type.SMALLINT: "NUMBER",
-            exp.DataType.Type.INT: "NUMBER",
+            exp.DataType.Type.INT: "NUMBER(19,0)",
             exp.DataType.Type.BIGINT: "NUMBER",
             exp.DataType.Type.DECIMAL: "NUMBER",
             exp.DataType.Type.DOUBLE: "DOUBLE PRECISION",

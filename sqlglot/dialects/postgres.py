@@ -492,6 +492,7 @@ class Postgres(Dialect):
             exp.DataType.Type.ROWVERSION: "BYTEA",
             exp.DataType.Type.DATETIME: "TIMESTAMP",
             exp.DataType.Type.TEXT: "VARCHAR(1024)",
+            exp.DataType.Type.INT: "BIGINT",
         }
 
         TRANSFORMS = {

@@ -789,6 +789,7 @@ class MySQL(Dialect):
             **UNSIGNED_TYPE_MAPPING,
             **TIMESTAMP_TYPE_MAPPING,
             exp.DataType.Type.TEXT: "VARCHAR(1024)",
+            exp.DataType.Type.INT: "BIGINT",
         }
 
         TYPE_MAPPING.pop(exp.DataType.Type.MEDIUMTEXT)
