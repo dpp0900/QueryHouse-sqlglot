@@ -1297,6 +1297,15 @@ class Generator(metaclass=_Generator):
             )
 
         if interior:
+            #check if interior is a int
+            if interior.isdigit():
+                # 1 ≤ n ≤ 4,000
+                if int(interior) < 1:
+                    interior = str(1)
+                elif int(interior) > 4000:
+                    interior = str(4000)
+                
+                
             if expression.args.get("nested"):
                 nested = f"{self.STRUCT_DELIMITER[0]}{interior}{self.STRUCT_DELIMITER[1]}"
                 if expression.args.get("values") is not None:
@@ -1307,8 +1316,10 @@ class Generator(metaclass=_Generator):
                 nested = f" {interior}"
             else:
                 nested = f"({interior})"
-
-        type_sql = f"{type_sql}{nested}{values}"
+        if type_sql == "SQLITE_VARCHAR":
+            type_sql = "TEXT"
+        else:
+            type_sql = f"{type_sql}{nested}{values}"
         if self.TZ_TO_WITH_TIME_ZONE and type_value in (
             exp.DataType.Type.TIMETZ,
             exp.DataType.Type.TIMESTAMPTZ,

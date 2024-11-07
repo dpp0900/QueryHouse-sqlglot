@@ -149,7 +149,7 @@ class SQLite(Dialect):
             exp.DataType.Type.DECIMAL: "REAL",
             exp.DataType.Type.CHAR: "TEXT",
             exp.DataType.Type.NCHAR: "TEXT",
-            exp.DataType.Type.VARCHAR: "TEXT",
+            exp.DataType.Type.VARCHAR: "SQLITE_VARCHAR",
             exp.DataType.Type.NVARCHAR: "TEXT",
             exp.DataType.Type.BINARY: "BLOB",
             exp.DataType.Type.VARBINARY: "BLOB",
