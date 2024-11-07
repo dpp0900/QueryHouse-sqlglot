@@ -4440,3 +4440,8 @@ class Generator(metaclass=_Generator):
         for_sql = f" FOR {for_sql}" if for_sql else ""
 
         return f"OVERLAY({this} PLACING {expr} FROM {from_sql}{for_sql})"
+
+    def fts5_sql(self, expression: exp.FTS5):
+        this = self.sql(expression, "this")
+        expr = self.sql(expression, "expression")
+        return f"{this} MATCH {expr}"

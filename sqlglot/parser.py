@@ -979,7 +979,7 @@ class Parser(metaclass=_Parser):
             exp.TransformModelProperty, expressions=self._parse_wrapped_csv(self._parse_expression)
         ),
         "TTL": lambda self: self._parse_ttl(),
-        "USING": lambda self: self._parse_property_assignment(exp.FileFormatProperty),
+        # "USING": lambda self: self._parse_property_assignment(exp.UsingProperty),
         "UNLOGGED": lambda self: self.expression(exp.UnloggedProperty),
         "VOLATILE": lambda self: self._parse_volatile_property(),
         "WITH": lambda self: self._parse_with_property(),
@@ -1750,6 +1750,17 @@ class Parser(metaclass=_Parser):
             and (not not_ or self._match(TokenType.NOT))
             and self._match(TokenType.EXISTS)
         )
+        
+    def _parse_fts5(self) -> exp.Expression:
+        if self._match(TokenType.L_PAREN):
+            args = self._parse_csv(self._parse_column)
+            self._match(TokenType.R_PAREN)
+            return self.expression(
+                exp.Fts5,
+                args=args,
+            )
+
+        return self.expression(exp.Fts5, this=self._parse_string())
 
     def _parse_create(self) -> exp.Create | exp.Command:
         # Note: this can't be None because we've matched a statement parser
@@ -1897,6 +1908,16 @@ class Parser(metaclass=_Parser):
             elif create_token.token_type == TokenType.VIEW:
                 if self._match_text_seq("WITH", "NO", "SCHEMA", "BINDING"):
                     no_schema_binding = True
+            
+                
+            
+            # if self._match(TokenType.USING):
+            #     print("USING")
+                
+            # if self._match_text_seq("FTS5"):
+            #     self._match(TokenType.L_PAREN)
+            #     self._match(TokenType.VAR)
+            #     self._match(TokenType.R_PAREN)
 
             shallow = self._match_text_seq("SHALLOW")
 
@@ -3627,6 +3648,12 @@ class Parser(metaclass=_Parser):
         if pivots:
             table.set("pivots", pivots)
 
+    
+        if self._match(TokenType.USING):
+            print("USING")
+            if self._match_texts("FTS5"):
+                using = self._parse_fts5()
+                table.set("using", using)
         return table
 
     def _parse_table(
@@ -3720,6 +3747,7 @@ class Parser(metaclass=_Parser):
         if self._match_pair(TokenType.WITH, TokenType.ORDINALITY):
             this.set("ordinality", True)
             this.set("alias", self._parse_table_alias())
+
 
         return this
 

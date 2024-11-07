@@ -3174,6 +3174,7 @@ class Table(Expression):
         "changes": False,
         "rows_from": False,
         "sample": False,
+        "using": False,
     }
 
     @property
@@ -6547,7 +6548,9 @@ class NextValueFor(Func):
 # select 1; -- my comment
 class Semicolon(Expression):
     arg_types = {}
-
+    
+class Fts5(Expression):
+    arg_types = {"args":False}
 
 def _norm_arg(arg):
     return arg.lower() if type(arg) is str else arg
