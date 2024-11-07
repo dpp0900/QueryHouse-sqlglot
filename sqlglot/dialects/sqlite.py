@@ -173,7 +173,7 @@ class SQLite(Dialect):
             exp.DateStrToDate: lambda self, e: self.sql(e, "this"),
             exp.If: rename_func("IIF"),
             exp.ILike: no_ilike_sql,
-            exp.JSONExtract: arrow_json_extract_sql, # always use arrow
+            exp.JSONExtract: arrow_json_extract_sql,
             exp.JSONExtractScalar: arrow_json_extract_sql,
             exp.Levenshtein: rename_func("EDITDIST3"),
             exp.LogicalOr: rename_func("MAX"),

@@ -3174,6 +3174,7 @@ class Table(Expression):
         "changes": False,
         "rows_from": False,
         "sample": False,
+        "virtual": False,
     }
 
     @property

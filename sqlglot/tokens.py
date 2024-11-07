@@ -400,6 +400,8 @@ class TokenType(AutoName):
     
     VIRTUAL = auto()
     STORED = auto()
+    
+    FTS5 = auto()
 
 
 _ALL_TOKEN_TYPES = list(TokenType)
@@ -924,6 +926,8 @@ class Tokenizer(metaclass=_Tokenizer):
         
         "VIRTUAL": TokenType.VIRTUAL,
         "STORED": TokenType.STORED,
+        
+        "FTS5": TokenType.FTS5,
     }
 
     WHITE_SPACE: t.Dict[t.Optional[str], TokenType] = {

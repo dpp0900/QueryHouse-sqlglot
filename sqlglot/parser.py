@@ -1773,8 +1773,14 @@ class Parser(metaclass=_Parser):
             clustered = False
         else:
             clustered = None
-
+            
+        if self._match(TokenType.VIRTUAL):
+            print("match virtual")
+            virtual = True
+            
+        print("check")
         if self._match_pair(TokenType.TABLE, TokenType.FUNCTION, advance=False):
+            print("check")
             self._advance()
 
         properties = None
@@ -1798,7 +1804,6 @@ class Parser(metaclass=_Parser):
         begin = None
         end = None
         clone = None
-
         def extend_props(temp_props: t.Optional[exp.Properties]) -> None:
             nonlocal properties
             if properties and temp_props:
@@ -1845,6 +1850,7 @@ class Parser(metaclass=_Parser):
 
             this = self._parse_index(index=index, anonymous=anonymous)
         elif create_token.token_type in self.DB_CREATABLES:
+            print("create_token.token_type in self.DB_CREATABLES")
             table_parts = self._parse_table_parts(
                 schema=True, is_db_reference=create_token.token_type == TokenType.SCHEMA
             )
@@ -1854,20 +1860,25 @@ class Parser(metaclass=_Parser):
             extend_props(self._parse_properties(before=True))
 
             this = self._parse_schema(this=table_parts)
+            print("parse_create, ", self._curr)
 
             # exp.Properties.Location.POST_SCHEMA and POST_WITH
             extend_props(self._parse_properties())
+            print("extend_props(self._parse_properties())")
 
             self._match(TokenType.ALIAS)
             if not self._match_set(self.DDL_SELECT_TOKENS, advance=False):
                 # exp.Properties.Location.POST_ALIAS
                 extend_props(self._parse_properties())
+                print("if not self._match_set(self.DDL_SELECT_TOKENS, advance=False):")
 
             if create_token.token_type == TokenType.SEQUENCE:
                 expression = self._parse_types()
                 extend_props(self._parse_properties())
+                print("if create_token.token_type == TokenType.SEQUENCE:")
             else:
                 expression = self._parse_ddl_select()
+                print("else:")
 
             if create_token.token_type == TokenType.TABLE:
                 # exp.Properties.Location.POST_EXPRESSION
@@ -1897,8 +1908,7 @@ class Parser(metaclass=_Parser):
                 )
         print("parse_as_command_if, ", self._curr)
         if self._curr and not self._match_set((TokenType.R_PAREN, TokenType.COMMA), advance=False):
-            print("parse_as_command")
-
+            print("parse_as_command_if")
             return self._parse_as_command(start)
 
         create_kind_text = create_token.text.upper()
@@ -1920,6 +1930,7 @@ class Parser(metaclass=_Parser):
             clone=clone,
             concurrently=concurrently,
             clustered=clustered,
+            virtual=virtual,
         )
 
     def _parse_sequence_properties(self) -> t.Optional[exp.SequenceProperties]:
@@ -2057,6 +2068,7 @@ class Parser(metaclass=_Parser):
             if not prop:
                 break
             for p in ensure_list(prop):
+                print("p", p)
                 properties.append(p)
 
         if properties:
@@ -5472,7 +5484,6 @@ class Parser(metaclass=_Parser):
         | exp.ComputedColumnConstraint
         | exp.GeneratedAsRowColumnConstraint
     ):
-        print("Generated as identity")
         if self._match_text_seq("BY", "DEFAULT"):
             on_null = self._match_pair(TokenType.ON, TokenType.NULL)
             this = self.expression(

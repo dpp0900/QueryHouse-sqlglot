@@ -513,7 +513,7 @@ class Postgres(Dialect):
             exp.ExplodingGenerateSeries: rename_func("GENERATE_SERIES"),
             exp.GroupConcat: _string_agg_sql,
             exp.IntDiv: rename_func("DIV"),
-            exp.JSONExtract: _json_extract_sql("JSON_EXTRACT_PATH", "->"),
+            exp.JSONExtract: lambda self, e: self.func("JSON_EXTRACT_PATH_TEXT", e.this, e.expression),
             exp.JSONExtractScalar: _json_extract_sql("JSON_EXTRACT_PATH_TEXT", "->>"),
             exp.JSONBExtract: lambda self, e: self.binary(e, "#>"),
             exp.JSONBExtractScalar: lambda self, e: self.binary(e, "#>>"),

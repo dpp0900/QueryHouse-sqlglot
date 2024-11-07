@@ -54,6 +54,9 @@ def removeONDELETENOACTIONFromForeignKey(self: Oracle.Generator, expression: exp
     expression.args.get("reference").args.get("options").pop(0)
     return self.foreignkey_sql(expression)
 
+def ExtractToQueryAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) -> str:
+    expression.args["expression"] = str(expression.args.get("expression")) + " RETURNING VARCHAR2(4000)"
+    return self.func("JSON_QUERY", expression.this,expression.expression)
 
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
@@ -332,7 +335,7 @@ class Oracle(Dialect):
             exp.Trim: _trim_sql,
             exp.UnixToTime: lambda self,
             e: f"TO_DATE('1970-01-01', 'YYYY-MM-DD') + ({self.sql(e, 'this')} / 86400)",
-            exp.JSONExtract: lambda self, e: self.func("JSON_QUERY", e.this, e.expression),
+            exp.JSONExtract: ExtractToQueryAndReturn,
             #recursive CTE
             exp.With: removeRecursiveFromCTE,
             exp.ForeignKey: removeONDELETENOACTIONFromForeignKey,

@@ -143,6 +143,10 @@ def _remove_ts_or_ds_to_date(
 
     return func
 
+def ExtractToValueAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) -> str:
+    expression.args["expression"] = str(expression.args.get("expression")) + " RETURNING CHAR"
+    return self.func("JSON_VALUE", expression.this,expression.expression)
+    
 
 class MySQL(Dialect):
     # https://dev.mysql.com/doc/refman/8.0/en/identifiers.html
@@ -709,6 +713,7 @@ class MySQL(Dialect):
             exp.GroupConcat: lambda self,
             e: f"""GROUP_CONCAT({self.sql(e, "this")} SEPARATOR {self.sql(e, "separator") or "','"})""",
             exp.ILike: no_ilike_sql,
+            exp.JSONExtract: ExtractToValueAndReturn,
             exp.JSONExtractScalar: arrow_json_extract_sql,
             exp.Max: max_or_greatest,
             exp.Min: min_or_least,
