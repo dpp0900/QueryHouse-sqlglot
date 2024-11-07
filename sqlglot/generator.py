@@ -1298,13 +1298,18 @@ class Generator(metaclass=_Generator):
 
         if interior:
             #check if interior is a int
-            if interior.isdigit():
+            if interior.isdigit() and type_value == exp.DataType.Type.VARCHAR:
                 # 1 ≤ n ≤ 4,000
                 if int(interior) < 1:
                     interior = str(1)
                 elif int(interior) > 4000:
                     interior = str(4000)
-                
+            if interior.isdigit() and type_value == exp.DataType.Type.CHAR:
+                # 1 ≤ n ≤ 255
+                if int(interior) < 1:
+                    interior = str(1)
+                elif int(interior) > 255:
+                    interior = str(255)
                 
             if expression.args.get("nested"):
                 nested = f"{self.STRUCT_DELIMITER[0]}{interior}{self.STRUCT_DELIMITER[1]}"
@@ -1316,7 +1321,7 @@ class Generator(metaclass=_Generator):
                 nested = f" {interior}"
             else:
                 nested = f"({interior})"
-        if type_sql == "SQLITE_VARCHAR":
+        if type_sql == "SQLITE_VARCHAR" or type_sql == "SQLITE_CHAR":
             type_sql = "TEXT"
         else:
             type_sql = f"{type_sql}{nested}{values}"

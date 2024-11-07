@@ -34,8 +34,11 @@ except UnsupportedError as e:
     # 변환 중 지원되지 않는 기능이 있는 경우 예외 처리
     print(f"쿼리 변환 중 오류가 발생했습니다: {e}")
     
+print("INPUT: ")
+for query in queries:
+    print(query + ';')
 
-print("SQLite:")
+print("\nSQLite:")
 for query in result[0]:
     print(query + ';')
 

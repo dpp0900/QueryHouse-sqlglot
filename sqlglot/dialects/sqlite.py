@@ -147,7 +147,7 @@ class SQLite(Dialect):
             exp.DataType.Type.FLOAT: "REAL",
             exp.DataType.Type.DOUBLE: "REAL",
             exp.DataType.Type.DECIMAL: "REAL",
-            exp.DataType.Type.CHAR: "TEXT",
+            exp.DataType.Type.CHAR: "SQLITE_CHAR",
             exp.DataType.Type.NCHAR: "TEXT",
             exp.DataType.Type.VARCHAR: "SQLITE_VARCHAR",
             exp.DataType.Type.NVARCHAR: "TEXT",

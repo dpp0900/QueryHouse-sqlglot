@@ -303,6 +303,7 @@ class Oracle(Dialect):
             exp.DataType.Type.BIGINT: "NUMBER",
             exp.DataType.Type.DECIMAL: "NUMBER",
             exp.DataType.Type.DOUBLE: "DOUBLE PRECISION",
+            exp.DataType.Type.CHAR: "NCHAR",
             exp.DataType.Type.VARCHAR: "NVARCHAR2",
             exp.DataType.Type.NVARCHAR: "NVARCHAR2",
             exp.DataType.Type.NCHAR: "NCHAR",
