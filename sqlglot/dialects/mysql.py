@@ -154,6 +154,8 @@ def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str
     new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
     return self.sql(new_case)
 
+
+
 class MySQL(Dialect):
     # https://dev.mysql.com/doc/refman/8.0/en/identifiers.html
     IDENTIFIERS_CAN_START_WITH_DIGIT = True
@@ -766,7 +768,6 @@ class MySQL(Dialect):
             exp.WeekOfYear: _remove_ts_or_ds_to_date(rename_func("WEEKOFYEAR")),
             exp.Year: _remove_ts_or_ds_to_date(),
             exp.Filter: UseCaseInsteadOfFilter,
-            exp.Fts5: lambda self, e: "aa",
         }
 
         UNSIGNED_TYPE_MAPPING = {
