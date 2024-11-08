@@ -1416,6 +1416,7 @@ class Create(DDL):
         "clone": False,
         "concurrently": False,
         "clustered": False,
+        "virtual": False,
     }
 
     @property

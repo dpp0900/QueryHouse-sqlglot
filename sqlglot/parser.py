@@ -1785,9 +1785,11 @@ class Parser(metaclass=_Parser):
             clustered = False
         else:
             clustered = None
-            
+
+        virtual = False
+        
         if self._match(TokenType.VIRTUAL):
-            pass
+            virtual = True
             
         print("check")
         if self._match_pair(TokenType.TABLE, TokenType.FUNCTION, advance=False):
@@ -1951,6 +1953,7 @@ class Parser(metaclass=_Parser):
             clone=clone,
             concurrently=concurrently,
             clustered=clustered,
+            virtual=virtual,
         )
 
     def _parse_sequence_properties(self) -> t.Optional[exp.SequenceProperties]:

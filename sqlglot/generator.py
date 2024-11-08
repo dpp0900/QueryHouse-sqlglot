@@ -1048,9 +1048,9 @@ class Generator(metaclass=_Generator):
         properties_locs = self.locate_properties(properties) if properties else defaultdict()
 
         this = self.createable_sql(expression, properties_locs)
-        virtual = expression.args.get("this").args.get("using")
+        # virtual = expression.args.get("virtual")
         
-        kind = "VIRTUAL " + kind if virtual else kind
+        # kind = "VIRTUAL " + kind if virtual else kind
 
         properties_sql = ""
         if properties_locs.get(exp.Properties.Location.POST_SCHEMA) or properties_locs.get(

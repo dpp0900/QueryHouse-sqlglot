@@ -766,6 +766,7 @@ class MySQL(Dialect):
             exp.WeekOfYear: _remove_ts_or_ds_to_date(rename_func("WEEKOFYEAR")),
             exp.Year: _remove_ts_or_ds_to_date(),
             exp.Filter: UseCaseInsteadOfFilter,
+            exp.Fts5: lambda self, e: "aa",
         }
 
         UNSIGNED_TYPE_MAPPING = {

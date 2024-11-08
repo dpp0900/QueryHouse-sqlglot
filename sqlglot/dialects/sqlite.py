@@ -72,6 +72,15 @@ def _transform_create(expression: exp.Expression) -> exp.Expression:
                         auto_increment = constraint
                 if auto_increment:
                     column.constraints.remove(auto_increment)
+    
+    #check virtual
+    virtual = expression.args.get("virtual")
+    if virtual:
+        kind = expression.args.get("kind")
+        kind = "VIRTUAL " + kind
+        expression.set("kind", kind)
+    
+        
 
     return expression
 
