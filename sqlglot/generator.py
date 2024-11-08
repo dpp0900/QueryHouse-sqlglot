@@ -202,6 +202,7 @@ class Generator(metaclass=_Generator):
         exp.WithJournalTableProperty: lambda self, e: f"WITH JOURNAL TABLE={self.sql(e, 'this')}",
         exp.WithSchemaBindingProperty: lambda self, e: f"WITH SCHEMA {self.sql(e, 'this')}",
         exp.WithOperator: lambda self, e: f"{self.sql(e, 'this')} WITH {self.sql(e, 'op')}",
+        exp.Fts5: lambda self, e: f"FTS5({self.sql(e, 'this')})",
     }
 
     # Whether null ordering is supported in order by
@@ -846,6 +847,7 @@ class Generator(metaclass=_Generator):
             return ""
 
         if isinstance(expression, str):
+            print("expression is string")
             return expression
 
         if key:
@@ -1046,6 +1048,9 @@ class Generator(metaclass=_Generator):
         properties_locs = self.locate_properties(properties) if properties else defaultdict()
 
         this = self.createable_sql(expression, properties_locs)
+        virtual = expression.args.get("this").args.get("using")
+        
+        kind = "VIRTUAL " + kind if virtual else kind
 
         properties_sql = ""
         if properties_locs.get(exp.Properties.Location.POST_SCHEMA) or properties_locs.get(
@@ -1310,7 +1315,6 @@ class Generator(metaclass=_Generator):
                     interior = str(1)
                 elif int(interior) > 255:
                     interior = str(255)
-                
             if expression.args.get("nested"):
                 nested = f"{self.STRUCT_DELIMITER[0]}{interior}{self.STRUCT_DELIMITER[1]}"
                 if expression.args.get("values") is not None:
@@ -1321,10 +1325,16 @@ class Generator(metaclass=_Generator):
                 nested = f" {interior}"
             else:
                 nested = f"({interior})"
+                
         if type_sql == "SQLITE_VARCHAR" or type_sql == "SQLITE_CHAR":
             type_sql = "TEXT"
+        elif type_sql == "ORACLE_VARCHAR":
+            type_sql = f"VARCHAR2({interior} CHAR)"
+        elif type_sql == "ORACLE_TEXT":
+            type_sql = f"VARCHAR2(4000 CHAR)"
         else:
             type_sql = f"{type_sql}{nested}{values}"
+            
         print("type_sql")
         print(type_sql)
         if self.TZ_TO_WITH_TIME_ZONE and type_value in (
@@ -1940,8 +1950,12 @@ class Generator(metaclass=_Generator):
         rows_from = self.expressions(expression, key="rows_from")
         if rows_from:
             table = f"ROWS FROM {self.wrap(rows_from)}"
+            
+        using = self.sql(expression, "using")
+        if using:
+            using = f" USING {using}"
 
-        return f"{only}{table}{changes}{partition}{version}{file_format}{sample_pre_alias}{alias}{hints}{pivots}{sample_post_alias}{joins}{laterals}{ordinality}"
+        return f"{only}{table}{changes}{partition}{version}{file_format}{sample_pre_alias}{alias}{hints}{pivots}{sample_post_alias}{joins}{laterals}{ordinality}{using}"
 
     def tablesample_sql(
         self,
@@ -1971,6 +1985,10 @@ class Generator(metaclass=_Generator):
             expr = f"({expr})"
 
         return f" {tablesample_keyword or self.TABLESAMPLE_KEYWORDS} {method}{expr}{seed}"
+
+    def using_sql(self, expression: exp.Using) -> str:
+        print("USING_SQL")
+        return self.sql(expression, "this")
 
     def pivot_sql(self, expression: exp.Pivot) -> str:
         expressions = self.expressions(expression, flat=True)
@@ -4442,8 +4460,3 @@ class Generator(metaclass=_Generator):
         for_sql = f" FOR {for_sql}" if for_sql else ""
 
         return f"OVERLAY({this} PLACING {expr} FROM {from_sql}{for_sql})"
-
-    def fts5_sql(self, expression: exp.FTS5):
-        this = self.sql(expression, "this")
-        expr = self.sql(expression, "expression")
-        return f"{this} MATCH {expr}"

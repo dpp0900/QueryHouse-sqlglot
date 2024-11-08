@@ -1751,16 +1751,17 @@ class Parser(metaclass=_Parser):
             and self._match(TokenType.EXISTS)
         )
         
-    def _parse_fts5(self) -> exp.Expression:
-        if self._match(TokenType.L_PAREN):
-            args = self._parse_csv(self._parse_column)
+    def _parse_fts5(self) -> exp.Fts5:
+        if self._match(TokenType.FTS5):
+            self._match(TokenType.L_PAREN)
+            args = self._parse_column()
             self._match(TokenType.R_PAREN)
             return self.expression(
                 exp.Fts5,
-                args=args,
+                this=args,
             )
-
-        return self.expression(exp.Fts5, this=self._parse_string())
+        else:
+            return None
 
     def _parse_create(self) -> exp.Create | exp.Command:
         # Note: this can't be None because we've matched a statement parser
@@ -3651,8 +3652,9 @@ class Parser(metaclass=_Parser):
     
         if self._match(TokenType.USING):
             print("USING")
-            if self._match_texts("FTS5"):
-                using = self._parse_fts5()
+            using = self._parse_fts5()
+            print(using)
+            if using:
                 table.set("using", using)
         return table
 
