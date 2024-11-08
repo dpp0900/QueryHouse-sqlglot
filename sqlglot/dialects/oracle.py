@@ -51,7 +51,8 @@ def removeRecursiveFromCTE(self: Oracle.Genreator, expression: exp.With) -> str:
     return self.with_sql(expression)
 
 def removeONDELETENOACTIONFromForeignKey(self: Oracle.Generator, expression: exp.ForeignKey) -> str:
-    expression.args.get("reference").args.get("options").pop(0)
+    if expression.args.get("reference").args.get("options"):
+        expression.args.get("reference").args.get("options").pop(0)
     return self.foreignkey_sql(expression)
 
 def ExtractToQueryAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) -> str:
@@ -307,7 +308,7 @@ class Oracle(Dialect):
             exp.DataType.Type.VARCHAR: "NVARCHAR2",
             exp.DataType.Type.NVARCHAR: "NVARCHAR2",
             exp.DataType.Type.NCHAR: "NCHAR",
-            exp.DataType.Type.TEXT: "NVARCHAR2(1024)",
+            exp.DataType.Type.TEXT: "VARCHAR",
             exp.DataType.Type.TIMETZ: "TIME",
             exp.DataType.Type.TIMESTAMPTZ: "TIMESTAMP",
             exp.DataType.Type.BINARY: "BLOB",

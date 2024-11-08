@@ -787,7 +787,6 @@ class MySQL(Dialect):
             **generator.Generator.TYPE_MAPPING,
             **UNSIGNED_TYPE_MAPPING,
             **TIMESTAMP_TYPE_MAPPING,
-            exp.DataType.Type.TEXT: "VARCHAR(1024)",
             exp.DataType.Type.INT: "BIGINT",
         }
 

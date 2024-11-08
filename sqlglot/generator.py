@@ -1325,6 +1325,8 @@ class Generator(metaclass=_Generator):
             type_sql = "TEXT"
         else:
             type_sql = f"{type_sql}{nested}{values}"
+        print("type_sql")
+        print(type_sql)
         if self.TZ_TO_WITH_TIME_ZONE and type_value in (
             exp.DataType.Type.TIMETZ,
             exp.DataType.Type.TIMESTAMPTZ,
