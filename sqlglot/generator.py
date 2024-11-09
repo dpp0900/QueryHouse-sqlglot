@@ -1950,7 +1950,12 @@ class Generator(metaclass=_Generator):
         rows_from = self.expressions(expression, key="rows_from")
         if rows_from:
             table = f"ROWS FROM {self.wrap(rows_from)}"
-        return f"{only}{table}{changes}{partition}{version}{file_format}{sample_pre_alias}{alias}{hints}{pivots}{sample_post_alias}{joins}{laterals}{ordinality}"
+            
+        using = self.sql(expression, "using")
+        if using:
+            using = f" USING {using}"
+
+        return f"{only}{table}{changes}{partition}{version}{file_format}{sample_pre_alias}{alias}{hints}{pivots}{sample_post_alias}{joins}{laterals}{ordinality}{using}"
 
     def tablesample_sql(
         self,

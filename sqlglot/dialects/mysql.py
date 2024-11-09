@@ -154,7 +154,13 @@ def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str
     new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
     return self.sql(new_case)
 
-
+def Fts5ToFullText(self: MySQL.Generator, expression: exp.Table) -> str:
+    using = expression.args.get("using")
+    if using:
+        fts_args = using.find(exp.Fts5).args.get("this")
+        return self.sql(expression.this) + f"({fts_args} TEXT, FULLTEXT({fts_args}))"
+    else:
+        return self.sql(expression.this)
 
 class MySQL(Dialect):
     # https://dev.mysql.com/doc/refman/8.0/en/identifiers.html
@@ -768,6 +774,8 @@ class MySQL(Dialect):
             exp.WeekOfYear: _remove_ts_or_ds_to_date(rename_func("WEEKOFYEAR")),
             exp.Year: _remove_ts_or_ds_to_date(),
             exp.Filter: UseCaseInsteadOfFilter,
+            # exp.Fts5: Fts5ToFullText,
+            exp.Table: Fts5ToFullText,
         }
 
         UNSIGNED_TYPE_MAPPING = {

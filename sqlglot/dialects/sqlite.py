@@ -102,16 +102,6 @@ def _generated_to_auto_increment(expression: exp.Expression) -> exp.Expression:
 
     return expression
 
-
-def AddUsingToTable(self: SQLite.Generator, expression: exp.Expression) -> str:
-    print("transform_table")
-    using = expression.args.get("using")
-    print(using)
-    if using:
-        using = " USING " + str(using)
-    
-    return str(expression) + using
-
 class SQLite(Dialect):
     # https://sqlite.org/forum/forumpost/5e575586ac5c711b?raw
     NORMALIZATION_STRATEGY = NormalizationStrategy.CASE_INSENSITIVE
@@ -211,7 +201,6 @@ class SQLite(Dialect):
             exp.TimeToStr: lambda self, e: self.func("STRFTIME", e.args.get("format"), e.this),
             exp.TryCast: no_trycast_sql,
             exp.TsOrDsToTimestamp: lambda self, e: self.sql(e, "this"),
-            exp.Table: AddUsingToTable,
         }
 
         # SQLite doesn't generally support CREATE TABLE .. properties
