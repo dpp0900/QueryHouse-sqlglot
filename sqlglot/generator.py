@@ -2849,7 +2849,7 @@ class Generator(metaclass=_Generator):
         return f"{self.sql(expression, 'this')}{self.JSON_KEY_VALUE_PAIR_SEP} {self.sql(expression, 'expression')}"
 
     def jsonpath_sql(self, expression: exp.JSONPath) -> str:
-        path = self.expressions(expression, sep="','", flat=True).lstrip(".")
+        path = self.expressions(expression, sep="", flat=True).lstrip(".")
 
         if expression.args.get("escape"):
             path = self.escape_str(path)
