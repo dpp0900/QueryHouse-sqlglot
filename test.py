@@ -21,10 +21,13 @@ try:
     # 각 DBMS에 맞게 쿼리를 변환 (오류 발생 시 즉시 예외 발생)
     for query in queries:
         print(repr(parse_one(query)))
-        sqlite_query = transpile(query, write='sqlite', unsupported_level=ErrorLevel.RAISE)
-        mysql_query = transpile(query, write='mysql', unsupported_level=ErrorLevel.RAISE)
+        # sqlite_query = transpile(query, write='sqlite', unsupported_level=ErrorLevel.RAISE)
+        sqlite_query =  [query]
+        # mysql_query = transpile(query, write='mysql', unsupported_level=ErrorLevel.RAISE)
+        mysql_query = [query]
         postgresql_query = transpile(query, write='postgres', unsupported_level=ErrorLevel.RAISE)
-        oracle_query = transpile(query, write='oracle', unsupported_level=ErrorLevel.RAISE)
+        # oracle_query = transpile(query, write='oracle', unsupported_level=ErrorLevel.RAISE)
+        oracle_query = [query]
 
         
         for i, q in enumerate([sqlite_query, mysql_query, postgresql_query, oracle_query]):

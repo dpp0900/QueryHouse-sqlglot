@@ -2849,14 +2849,14 @@ class Generator(metaclass=_Generator):
         return f"{self.sql(expression, 'this')}{self.JSON_KEY_VALUE_PAIR_SEP} {self.sql(expression, 'expression')}"
 
     def jsonpath_sql(self, expression: exp.JSONPath) -> str:
-        path = self.expressions(expression, sep="", flat=True).lstrip(".")
+        path = self.expressions(expression, sep="','", flat=True).lstrip(".")
 
         if expression.args.get("escape"):
             path = self.escape_str(path)
 
         if self.QUOTE_JSON_PATH:
             path = f"{self.dialect.QUOTE_START}{path}{self.dialect.QUOTE_END}"
-
+        # print("jsonpath_sql", path)
         return path
 
     def json_path_part(self, expression: int | str | exp.JSONPathPart) -> str:
@@ -4053,7 +4053,7 @@ class Generator(metaclass=_Generator):
 
         return self.sql(transformed)
 
-    def _jsonpathkey_sql(self, expression: exp.JSONPathKey) -> str:
+    def _jsonpathkey_sql(self, expression: exp.JSONPathKey) -> str: # when json extract key is like $.aa.bb.cc
         this = expression.this
         if isinstance(this, exp.JSONPathWildcard):
             this = self.json_path_part(this)
