@@ -195,6 +195,8 @@ def _json_extract_sql(
     def _generate(self: Postgres.Generator, expression: JSON_EXTRACT_TYPE) -> str:
         # if expression.args.get("only_json_types"):
         #     return json_extract_segments(name, quoted_index=False, op=op)(self, expression)
+        print("HERE")
+        print("json_extract_segments(name)(self, expression): ", json_extract_segments(name)(self, expression))
         return json_extract_segments(name)(self, expression)
 
     return _generate

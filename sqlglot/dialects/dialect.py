@@ -1595,14 +1595,16 @@ def json_extract_segments(
         for segment in path.expressions:
             path = self.sql(segment)
             if path:
+                print("path", path)
                 if isinstance(segment, exp.JSONPathPart) and (
                     quoted_index or not isinstance(segment, exp.JSONPathSubscript)
                 ):
                     if escape:
+                        print("is escape")
                         path = self.escape_str(path)
 
                     path = f"{self.dialect.QUOTE_START}{path}{self.dialect.QUOTE_END}"
-
+                print("path", path)
                 segments.append(path)
 
         if op:
