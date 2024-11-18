@@ -157,8 +157,10 @@ def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str
 def Fts5ToFullText(self: MySQL.Generator, expression: exp.Table) -> str:
     using = expression.args.get("using")
     if using:
-        fts_args = using.find(exp.Fts5).args.get("this")
-        return self.sql(expression.this) + f"({fts_args} TEXT, FULLTEXT({fts_args}))"
+        fts_args = self.expressions(using.find(exp.Fts5), "expressions")
+        # add TEXT for each col
+        fts_args_text = ",".join([f"{col} TEXT" for col in fts_args.split(",")])
+        return self.sql(expression.this) + f"({fts_args_text}, FULLTEXT({fts_args}))"
     else:
         return self.sql(expression.this)
 
