@@ -1757,10 +1757,7 @@ class Parser(metaclass=_Parser):
             args = self._parse_csv(self._parse_id_var)
             print("args", args)
             self._match(TokenType.R_PAREN)
-            return self.expression(
-                exp.Fts5,
-                this=args,
-            )
+            return self.expression(exp.Fts5, expressions=args)
         else:
             return None
 
@@ -3654,12 +3651,12 @@ class Parser(metaclass=_Parser):
             table.set("pivots", pivots)
 
     
-        # if self._match(TokenType.USING):
-        #     print("USING")
-        #     using = self._parse_fts5()
-        #     print(using)
-        #     if using:
-        #         table.set("using", using)
+        if self._match(TokenType.USING):
+            print("USING")
+            using = self._parse_fts5()
+            print(using)
+            if using:
+                table.set("using", using)
         return table
 
     def _parse_table(

@@ -153,6 +153,7 @@ def parse(path: str, dialect: DialectType = None) -> exp.JSONPath:
 
     while _curr():
         if _match(TokenType.DOT) or _match(TokenType.COLON):
+            print(_curr())
             recursive = _prev().text == ".."
 
             if _match(TokenType.VAR) or _match(TokenType.IDENTIFIER):

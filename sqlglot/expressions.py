@@ -6551,7 +6551,7 @@ class Semicolon(Expression):
     arg_types = {}
     
 class Fts5(Expression):
-    arg_types = {"this":True}
+    arg_types = {"expressions":True}
 
 def _norm_arg(arg):
     return arg.lower() if type(arg) is str else arg

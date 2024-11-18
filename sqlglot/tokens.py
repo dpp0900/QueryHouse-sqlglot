@@ -999,6 +999,7 @@ class Tokenizer(metaclass=_Tokenizer):
 
     def tokenize(self, sql: str) -> t.List[Token]:
         """Returns a list of tokens corresponding to the SQL string `sql`."""
+        print("tokenize")
         if USE_RS_TOKENIZER:
             return self.tokenize_rs(sql)
 

@@ -202,7 +202,7 @@ class Generator(metaclass=_Generator):
         exp.WithJournalTableProperty: lambda self, e: f"WITH JOURNAL TABLE={self.sql(e, 'this')}",
         exp.WithSchemaBindingProperty: lambda self, e: f"WITH SCHEMA {self.sql(e, 'this')}",
         exp.WithOperator: lambda self, e: f"{self.sql(e, 'this')} WITH {self.sql(e, 'op')}",
-        exp.Fts5: lambda self, e: f"FTS5({self.sql(e, 'this')})",
+        exp.Fts5: lambda self, e: self.func("FTS5", *e.expressions),
     }
 
     # Whether null ordering is supported in order by
