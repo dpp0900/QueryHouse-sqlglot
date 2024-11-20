@@ -159,8 +159,11 @@ def Fts5ToFullText(self: MySQL.Generator, expression: exp.Table) -> str:
     if using:
         fts_args = self.expressions(using.find(exp.Fts5), "expressions")
         # add TEXT for each col
-        fts_args_text = ",".join([f"{col} TEXT" for col in fts_args.split(",")])
-        return self.sql(expression.this) + f"({fts_args_text}, FULLTEXT({fts_args}))"
+        strip_col = [col.strip() for col in fts_args.split(",")]
+        
+        fts_args_text = ", ".join([f"{col} TEXT" for col in strip_col])
+        fts_args_fulltext = ", ".join([f"FULLTEXT({col})" for col in strip_col])
+        return self.sql(expression.this) + f"({fts_args_text}, {fts_args_fulltext})"
     else:
         return self.sql(expression.this)
 
