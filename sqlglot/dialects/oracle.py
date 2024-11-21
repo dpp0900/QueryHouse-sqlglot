@@ -77,6 +77,7 @@ def Fts5ToContext(self: MySQL.Generator, expression: exp.Table) -> str:
         print("create_table", create_table)
         create_index = [f"CREATE INDEX idx_fts_{table}_{col} ON {table}({col}) INDEXTYPE IS CTXSYS.CONTEXT" for col in strip_col]
         return f"{create_table}; {'; '.join(create_index)}"
+    return self.table_sql(expression)
 
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
