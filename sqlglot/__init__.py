@@ -144,7 +144,97 @@ def parse_one(
         return expression
     else:
         raise ParseError(f"No expression was parsed from '{sql}'")
+import re
 
+def detect_search_type(fts_query):
+    """
+    Detect the type of search based on the fts_query content.
+    :param fts_query: str, the full-text search query
+    :return: str, Detected search type: 'Tokenization', 'Boolean operator', or 'Phrase searching'
+    """
+    if '"' in fts_query:  # Check for exact phrase matching
+        return "Phrase searching"
+    elif any(op in fts_query for op in ['AND','NOT']):  # Check for Boolean operators
+        return "Boolean operator"
+    else:  # Default to Tokenization
+        return "Tokenization"
+
+def convert_match_query_to_list(sqlite_query, dbms):
+    """
+    Convert a SQLite MATCH query into equivalent queries for SQLite, MySQL, PostgreSQL, and OracleDB,
+    automatically detecting the search type.
+
+    :param sqlite_query: str, SQLite MATCH query (e.g., "c0 MATCH 'abcd'")
+    :return: list, Converted queries in the order [sqlite, mysql, postgres, oracledb]
+    """
+    # Extract column name and search term using regex
+    match = re.match(r"(\w+)\s+MATCH\s+'(.+)'", sqlite_query)
+    if not match:
+        raise ValueError("Invalid SQLite query format")
+    
+    col_name, fts_query = match.groups()
+
+    # Detect search type
+    search_type = detect_search_type(fts_query)
+    print(f"Search type: {search_type}")
+    
+    if search_type == "Tokenization":
+        if dbms == "sqlite":
+            return [sqlite_query]
+        elif dbms == "mysql":
+            return [f"MATCH({col_name}) AGAINST ('{fts_query}' IN NATURAL LANGUAGE MODE)"]
+        elif dbms == "postgres":
+            return [f"to_tsvector('english', {col_name}) @@ to_tsquery('{fts_query.replace(' ', ' & ')}')"]
+        elif dbms == "oracle":
+            return [f"CONTAINS({col_name}, '{fts_query}') > 0"]
+        
+    elif search_type == "Boolean operator":
+        if dbms == "sqlite":
+            return [sqlite_query]
+        elif dbms == "mysql":
+            # Split the query into tokens
+            tokens = re.split(r'\s+', fts_query)
+            transformed_query = []
+            previous_token = None
+            
+            for token in tokens:
+                if token.upper() == "AND":
+                    # Apply "+" to both the previous and next token
+                    if previous_token and not previous_token.startswith(('+', '-')):
+                        transformed_query[-1] = f"+{previous_token}"
+                    previous_token = "+"
+                elif token.upper() == "NOT":
+                    # Set next token to be negated
+                    previous_token = "-"
+                else:
+                    # Apply the operator or default to "+"
+                    operator = previous_token if previous_token in ("+", "-") else "+"
+                    if not token.startswith(('+', '-')):
+                        transformed_query.append(f"{operator}{token}")
+                    else:
+                        transformed_query.append(token)
+                    previous_token = None  # Reset operator after applying
+            
+            # Join tokens to form the MySQL query
+            final_query = " ".join(transformed_query)
+            return [f"MATCH({col_name}) AGAINST ('{final_query}' IN BOOLEAN MODE)"]
+        elif dbms == "postgres":
+            # Transform query for PostgreSQL
+            transformed_query = fts_query.replace('AND', '&').replace('NOT', '& !')
+            transformed_query = re.sub(r'\bNOT\s+(\w+)', r'!\\1', transformed_query)
+            return [f"to_tsvector('english', {col_name}) @@ to_tsquery('{transformed_query}')"]
+        elif dbms == "oracle":
+            return [f"CONTAINS({col_name}, '{fts_query}') > 0"]
+        
+    elif search_type == "Phrase searching":
+        if dbms == "sqlite":
+            return [sqlite_query]
+        elif dbms == "mysql":
+            return [f"MATCH({col_name}) AGAINST ('{fts_query}' IN NATURAL LANGUAGE MODE)"]
+        elif dbms == "postgres":
+            return [f"to_tsvector('english', {col_name}) @@ phraseto_tsquery('english', '{fts_query}')"]
+        elif dbms == "oracle":
+            return [f"CONTAINS({col_name}, '{fts_query}') > 0"]
 
 def transpile(
     sql: str,
@@ -173,6 +263,13 @@ def transpile(
     write = (read if write is None else write) if identity else write
     print("[__init__.py] modify test")
     write = Dialect.get_or_raise(write)
+    
+    if "MATCH" in sql:
+        print("MATCH in sql")
+        print(convert_match_query_to_list(sql, write))
+        return convert_match_query_to_list(sql, write)
+        
+        
     return [
         write.generate(expression, copy=False, **opts) if expression else ""
         for expression in parse(sql, read, error_level=error_level)
