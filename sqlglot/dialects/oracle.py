@@ -66,6 +66,18 @@ def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str
     new_case = self.func(func, "CASE WHEN" + str(where).replace("WHERE", "") + " THEN " + str(arg) + " END")
     return self.sql(new_case)
 
+def Fts5ToContext(self: MySQL.Generator, expression: exp.Table) -> str:
+    using = expression.args.get("using")
+    if using:
+        table = expression.args.get("this")
+        fts_args = self.expressions(using.find(exp.Fts5), "expressions")
+        strip_col = [col.strip() for col in fts_args.split(',')]
+        fts_table_args = ', '.join([f"{col} CLOB" for col in strip_col])
+        create_table = f"{table}({fts_table_args})"
+        print("create_table", create_table)
+        create_index = [f"CREATE INDEX idx_fts_{table}_{col} ON {table}({col}) INDEXTYPE IS CTXSYS.CONTEXT" for col in strip_col]
+        return f"{create_table}; {'; '.join(create_index)}"
+
 class Oracle(Dialect):
     ALIAS_POST_TABLESAMPLE = True
     LOCKING_READS_SUPPORTED = True
@@ -351,6 +363,7 @@ class Oracle(Dialect):
             exp.With: removeRecursiveFromCTE,
             exp.ForeignKey: removeONDELETENOACTIONFromForeignKey,
             exp.Filter: UseCaseInsteadOfFilter,
+            exp.Table: Fts5ToContext
         }
 
         PROPERTIES_LOCATION = {
