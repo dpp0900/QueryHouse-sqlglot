@@ -251,7 +251,22 @@ def addStoredToGENERATED(expression: exp.Expression) -> exp.Expression:
         
     return expression
 
-
+def Fts5Totsvector(self: Postgres.Generator, expression: exp.Table) -> str:
+    print("Fts5Totsvector")
+    print("expression: ", expression)
+    table = expression.args.get("this")
+    print("table: ", table)
+    using = expression.args.get("using")
+    if using:
+        fts_args = self.expressions(using.find(exp.Fts5),"expressions")
+        strip_col = [col.strip() for col in fts_args.split(",")]
+        fts_table_args = ", ".join([f"{col} TEXT" for col in strip_col])
+        print("fts_table_args: ", fts_table_args)
+        create_table = f"{table}({fts_table_args})"
+        print("create_table: ", create_table)
+        create_indexs = [f"CREATE INDEX idx_fts_{table}_{col} ON {table} USING GIN (to_tsvector('english', {col}))" for col in strip_col]
+        return f"{create_table}; {'; '.join(create_indexs)}"
+    return self.sql(expression, "this")
 
 
 class Postgres(Dialect):
@@ -577,6 +592,8 @@ class Postgres(Dialect):
             exp.Variance: rename_func("VAR_SAMP"),
             exp.Xor: bool_xor_sql,
             exp.UnixToTime: _unix_to_time_sql,
+            
+            exp.Table: Fts5Totsvector,
         }
         TRANSFORMS.pop(exp.CommentColumnConstraint)
 
