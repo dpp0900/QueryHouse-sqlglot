@@ -197,7 +197,7 @@ def _json_extract_sql(
         #     return json_extract_segments(name, quoted_index=False, op=op)(self, expression)
         print("HERE")
         print("json_extract_segments(name)(self, expression): ", json_extract_segments(name)(self, expression))
-        return json_extract_segments(name)(self, expression)
+        return json_extract_segments(name)(self, expression) + "::TEXT"
 
     return _generate
 
@@ -528,8 +528,8 @@ class Postgres(Dialect):
             exp.GroupConcat: _string_agg_sql,
             exp.IntDiv: rename_func("DIV"),
             # exp.JSONExtract: lambda self, e: self.func("JSON_EXTRACT_PATH_TEXT", e.this, e.expression),
-            exp.JSONExtract:_json_extract_sql("JSON_EXTRACT_PATH_TEXT", "->"),
-            exp.JSONExtractScalar: _json_extract_sql("JSON_EXTRACT_PATH_TEXT", "->>"),
+            exp.JSONExtract:_json_extract_sql("JSON_EXTRACT_PATH", "->"),
+            exp.JSONExtractScalar: _json_extract_sql("JSON_EXTRACT_PATH", "->>"),
             exp.JSONBExtract: lambda self, e: self.binary(e, "#>"),
             exp.JSONBExtractScalar: lambda self, e: self.binary(e, "#>>"),
             exp.JSONBContains: lambda self, e: self.binary(e, "?"),

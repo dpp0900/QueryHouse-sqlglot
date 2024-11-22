@@ -144,8 +144,8 @@ def _remove_ts_or_ds_to_date(
     return func
 
 def ExtractToValueAndReturn(self: MySQL.Generator, expression: exp.JSONExtract) -> str:
-    expression.args["expression"] = str(expression.args.get("expression")) + " RETURNING CHAR"
-    return self.func("JSON_VALUE", expression.this,expression.expression)
+    expression.args["expression"] = str(expression.args.get("expression")) 
+    return self.func("CAST",self.func("JSON_EXTRACT", expression.this,expression.expression)+ " AS CHAR")
 
 def UseCaseInsteadOfFilter(self: MySQL.Generator, expression: exp.Filter) -> str:
     func = expression.find(exp.Func).sql_name()
@@ -779,7 +779,6 @@ class MySQL(Dialect):
             exp.WeekOfYear: _remove_ts_or_ds_to_date(rename_func("WEEKOFYEAR")),
             exp.Year: _remove_ts_or_ds_to_date(),
             exp.Filter: UseCaseInsteadOfFilter,
-            # exp.Fts5: Fts5ToFullText,
             exp.Table: Fts5ToFullText,
         }
 
