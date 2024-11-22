@@ -1225,9 +1225,11 @@ class Generator(metaclass=_Generator):
         alias = self.sql(expression, "this")
         columns = self.expressions(expression, key="columns", flat=True)
         columns = f"({columns})" if columns else ""
+        print("columns", columns)
 
         if columns and not self.SUPPORTS_TABLE_ALIAS_COLUMNS:
             columns = ""
+            raise Exception("Named columns are not supported in table alias.")
             self.unsupported("Named columns are not supported in table alias.")
 
         if not alias and not self.dialect.UNNEST_COLUMN_ONLY:
@@ -2184,6 +2186,7 @@ class Generator(metaclass=_Generator):
             on_sql = csv(*(self.sql(column) for column in using))
 
         this = expression.this
+        print(this)
         this_sql = self.sql(this)
 
         if on_sql:

@@ -1752,7 +1752,7 @@ class Parser(metaclass=_Parser):
         )
         
     def _parse_fts5(self) -> exp.Fts5:
-        if self._match(TokenType.FTS5):
+        if self._match_pair(TokenType.USING, TokenType.FTS5):
             self._match(TokenType.L_PAREN)
             args = self._parse_csv(self._parse_id_var)
             print("args", args)
@@ -3111,6 +3111,7 @@ class Parser(metaclass=_Parser):
     def _parse_table_alias(
         self, alias_tokens: t.Optional[t.Collection[TokenType]] = None
     ) -> t.Optional[exp.TableAlias]:
+        print("_parse_table_alias")
         any_token = self._match(TokenType.ALIAS)
         alias = (
             self._parse_id_var(any_token=any_token, tokens=alias_tokens or self.TABLE_ALIAS_TOKENS)
@@ -3118,11 +3119,15 @@ class Parser(metaclass=_Parser):
         )
 
         index = self._index
+        
         if self._match(TokenType.L_PAREN):
             columns = self._parse_csv(self._parse_function_parameter)
+            print("_parse_table_alias columns", columns)
             self._match_r_paren() if columns else self._retreat(index)
         else:
             columns = None
+        
+        print("_parse_table_alias alias", alias)
 
         if not alias and not columns:
             return None
@@ -3132,7 +3137,6 @@ class Parser(metaclass=_Parser):
         # We bubble up comments from the Identifier to the TableAlias
         if isinstance(alias, exp.Identifier):
             table_alias.add_comments(alias.pop_comments())
-
         return table_alias
 
     def _parse_subquery(
@@ -3590,6 +3594,7 @@ class Parser(metaclass=_Parser):
     def _parse_table_parts(
         self, schema: bool = False, is_db_reference: bool = False, wildcard: bool = False
     ) -> exp.Table:
+        print("parse_table_parts")
         catalog = None
         db = None
         table: t.Optional[exp.Expression | str] = self._parse_table_part(schema=schema)
@@ -3651,12 +3656,10 @@ class Parser(metaclass=_Parser):
             table.set("pivots", pivots)
 
     
-        if self._match(TokenType.USING):
-            print("USING")
-            using = self._parse_fts5()
-            print(using)
-            if using:
-                table.set("using", using)
+        using = self._parse_fts5()
+        if using:
+            print("SET USING")
+            table.set("using", using)
         return table
 
     def _parse_table(
@@ -3668,6 +3671,8 @@ class Parser(metaclass=_Parser):
         is_db_reference: bool = False,
         parse_partition: bool = False,
     ) -> t.Optional[exp.Expression]:
+        
+        print("parse_table")
         lateral = self._parse_lateral()
         if lateral:
             return lateral
@@ -3727,7 +3732,9 @@ class Parser(metaclass=_Parser):
             this.set("sample", self._parse_table_sample())
 
         alias = self._parse_table_alias(alias_tokens=alias_tokens or self.TABLE_ALIAS_TOKENS)
+        print("alias", alias, "done")
         if alias:
+            print("set alias")
             this.set("alias", alias)
 
         if isinstance(this, exp.Table) and self._match_text_seq("AT"):
@@ -5468,8 +5475,9 @@ class Parser(metaclass=_Parser):
             constraints.append(constraint)
 
         if not kind and not constraints:
+            print("column def", this)
             return this
-
+        print("column def", this, kind, constraints)
         return self.expression(exp.ColumnDef, this=this, kind=kind, constraints=constraints)
 
     def _parse_auto_increment(
@@ -6494,7 +6502,6 @@ class Parser(metaclass=_Parser):
         ):
             quoted = self._prev.token_type == TokenType.STRING
             expression = self.expression(exp.Identifier, this=self._prev.text, quoted=quoted)
-
         return expression
 
     def _parse_string(self) -> t.Optional[exp.Expression]:
@@ -7187,7 +7194,6 @@ class Parser(metaclass=_Parser):
 
         if self._curr.token_type == token_type:
             if advance:
-                print("with paren?")
                 self._advance()
             self._add_comments(expression)
             return True
@@ -7200,7 +7206,6 @@ class Parser(metaclass=_Parser):
 
         if self._curr.token_type in types:
             if advance:
-                print("EACH")
                 self._advance()
             return True
 

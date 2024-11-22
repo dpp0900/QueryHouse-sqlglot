@@ -20,7 +20,7 @@ result = [[] for _ in range(4)]
 try:
     # 각 DBMS에 맞게 쿼리를 변환 (오류 발생 시 즉시 예외 발생)
     for query in queries:
-        # print(repr(parse_one(query)))
+        print(repr(parse_one(query)))
         sqlite_query = transpile(query, write='sqlite', unsupported_level=ErrorLevel.RAISE)
         # sqlite_query =  [query]
         mysql_query = transpile(query, write='mysql', unsupported_level=ErrorLevel.RAISE)
