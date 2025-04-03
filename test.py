@@ -27,10 +27,11 @@ try:
         # mysql_query = [query]
         postgresql_query = transpile(query, write='postgres', unsupported_level=ErrorLevel.RAISE)
         oracle_query = transpile(query, write='oracle', unsupported_level=ErrorLevel.RAISE)
+        mariadb_query = transpile(query, write='mariadb', unsupported_level=ErrorLevel.RAISE)
         # oracle_query = [query]
 
         
-        for i, q in enumerate([sqlite_query, mysql_query, postgresql_query, oracle_query]):
+        for i, q in enumerate([sqlite_query, mysql_query, postgresql_query, oracle_query, mariadb_query]):
             result[i].append(q[0])
 
 except UnsupportedError as e:
@@ -55,4 +56,8 @@ for query in result[2]:
     
 print("\nOracle:")
 for query in result[3]:
+    print(query + ';')
+    
+print("\nMariaDB:")
+for query in result[4]:
     print(query + ';')
